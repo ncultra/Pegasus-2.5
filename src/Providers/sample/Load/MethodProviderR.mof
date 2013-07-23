@@ -1,0 +1,29 @@
+#pragma locale ("en_US")
+
+instance of PG_ProviderModule
+{
+   Name = "SampleMethodProviderModule";
+   Location = "SampleMethodProvider";
+   Vendor = "Pegasus Community";
+   Version = "2.0.0";
+   InterfaceType = "C++Default";
+   InterfaceVersion = "2.1.0";
+};
+
+instance of PG_Provider
+{
+   ProviderModuleName = "SampleMethodProviderModule";
+   Name = "SampleMethodProvider";
+};
+
+instance of PG_ProviderCapabilities
+{
+   ProviderModuleName = "SampleMethodProviderModule";
+   ProviderName = "SampleMethodProvider";
+   CapabilityID = "1";
+   ClassName = "Sample_MethodProviderClass";
+   Namespaces = {"root/SampleProvider"};
+   ProviderType = { 5 }; //  Instance and Method
+   SupportedProperties = NULL;
+   SupportedMethods = { "SayHello" };
+};

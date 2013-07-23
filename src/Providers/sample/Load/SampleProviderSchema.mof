@@ -1,0 +1,80 @@
+[abstract, Version ("2.2.0")]
+class Sample_ProviderClass
+{
+	[key,
+	read]
+	Uint8 Identifier;
+};
+
+[Version ("2.2.0")]
+class Sample_InstanceProviderClass : Sample_ProviderClass
+{
+	[read, write]
+	string Message;
+};
+
+[Version ("2.2.0")]
+class Sample_InstanceQueryProviderClass : Sample_ProviderClass
+{
+	[read, write]
+	string Message;
+};
+
+// globalization test class for localization and UTF testing
+[Version ("2.2.0")]
+class Sample_LocalizedProviderClass : Sample_ProviderClass
+{
+	[read, write]
+	string RoundTripString;
+
+	[read, write]
+	char16 RoundTripChar;
+
+	[read]
+	string ResourceBundleString;
+
+	[read, write]
+	string ContentLanguageString;
+
+	string UTFMethod( [IN] string inStr, [IN] char16 inChar16,
+                         [OUT] string outStr, [OUT] char16 outChar16);
+
+	uint16 generateIndication();
+
+	uint8 getConsumerStatus();
+
+	boolean setDefaultMessageLoading( [IN] boolean newSetting);
+};
+
+// globalization test class for aggregation tests
+[Version ("2.2.0")]
+class Sample_LocalizedProviderSubClass : Sample_LocalizedProviderClass
+{
+	[read, write]
+	string TestString;
+};
+
+// globalization test class for indication tests
+[Indication]
+class LocalizedProvider_TestIndication : CIM_Indication
+{
+    string UnicodeStr;
+    char16 UnicodeChar;
+};
+
+[Version ("2.2.0")]
+class Sample_MethodProviderClass : Sample_ProviderClass
+{
+	string SayHello( [IN] string Name, [OUT] string place);
+};
+
+[Version ("2.2.0")]
+class Sample_IndicationProviderClass : CIM_Indication
+{
+	[read]
+	string Message;
+	
+	[read]
+	datetime TimeStamp;
+};
+

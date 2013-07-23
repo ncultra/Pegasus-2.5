@@ -1,0 +1,53 @@
+[Version ("2.2.0")]
+class Person
+{
+    [key]
+    string name;
+};
+
+[association, Version ("2.2.0")]
+class Lineage
+{
+    [key] Person ref parent;
+    [key] Person ref child;
+};
+
+[association, Version ("2.2.0")]
+class LabeledLineage
+{
+    string label;
+    [key] Person ref parent;
+    [key] Person ref child;
+};
+
+instance of Person { name = "Mike"; };
+
+instance of Person { name = "Saara"; };
+
+instance of Person { name = "Sofi"; };
+
+instance of Person { name = "Gabi"; };
+
+instance of Lineage
+{
+    parent = "Person.name=\"Mike\"";
+    child = "Person.name=\"Sofi\"";
+};
+
+instance of Lineage
+{
+    parent = "Person.name=\"Mike\"";
+    child = "Person.name=\"Gabi\"";
+};
+
+instance of Lineage
+{
+    parent = "Person.name=\"Saara\"";
+    child = "Person.name=\"Sofi\"";
+};
+
+instance of Lineage
+{
+    parent = "Person.name=\"Saara\"";
+    child = "Person.name=\"Gabi\"";
+};

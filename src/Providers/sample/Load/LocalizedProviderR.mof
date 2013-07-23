@@ -1,0 +1,66 @@
+#pragma locale ("en_US")
+
+// l10n - globalization test
+
+instance of PG_ProviderModule
+{
+    Description = "The Sample Pegasus Provider Module that implements Sample_LocalizedProviderClass";
+    Caption = "Sample Pegasus Localized Provider Module";
+    Name = "SampleLocalizedProviderModule";
+    Vendor = "Pegasus";
+    Version = "2.0.0";
+    InterfaceType = "C++Default";
+    InterfaceVersion = "2.1.0";
+    Location = "SampleLocalizedProvider";
+};
+
+instance of PG_Provider
+{
+    ProviderModuleName = "SampleLocalizedProviderModule";
+    Name = "SampleLocalizedProvider";
+};
+
+instance of PG_ProviderCapabilities
+{
+   ProviderModuleName = "SampleLocalizedProviderModule";
+   ProviderName = "SampleLocalizedProvider";
+   CapabilityID = "1";
+   ClassName = "Sample_LocalizedProviderClass";
+   Namespaces = {"root/SampleProvider"};
+   ProviderType = { 2, 5 };   //Instance, Method
+   SupportedProperties = NULL;
+   SupportedMethods = NULL;
+};
+
+instance of PG_ProviderCapabilities
+{
+   ProviderModuleName = "SampleLocalizedProviderModule";
+   ProviderName = "SampleLocalizedProvider";
+   CapabilityID = "2";
+   ClassName = "Sample_LocalizedProviderSubClass";
+   Namespaces = {"root/SampleProvider"};
+   ProviderType = { 2 };   //Instance
+   SupportedProperties = NULL;
+   SupportedMethods = NULL;
+};
+
+instance of PG_ProviderCapabilities
+{
+   ProviderModuleName = "SampleLocalizedProviderModule";
+   ProviderName = "SampleLocalizedProvider";
+   CapabilityID = "3";  
+   ClassName = "LocalizedProvider_TestIndication";
+   Namespaces = {"root/SampleProvider"};
+   ProviderType = { 4 };   //Indication
+   SupportedProperties = NULL;
+   SupportedMethods = NULL;
+};
+
+instance of PG_ConsumerCapabilities
+{
+    ProviderModuleName = "SampleLocalizedProviderModule";
+    ProviderName = "SampleLocalizedProvider";
+    CapabilityID = "1";
+    ProviderType = { 6 };  // Consumer
+    Destinations = {"/localizedprovider"};
+};

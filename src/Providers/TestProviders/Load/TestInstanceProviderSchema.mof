@@ -1,0 +1,13 @@
+#pragma locale("en_US")
+
+class TST_Instance1
+{
+    [key]
+    string Name;
+
+    string s = "default";
+    uint64 n;
+    real64 f;
+    datetime d;
+
+};

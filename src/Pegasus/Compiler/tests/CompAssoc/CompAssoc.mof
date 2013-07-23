@@ -1,0 +1,37 @@
+[Version ("2.2.0")]
+class X
+{
+    [key]
+    string key;
+};
+
+[Version ("2.2.0")]
+class Y
+{
+    [key]
+    string key;
+};
+
+[association, Version ("2.2.0")]
+class A
+{
+    [Key] X ref left;
+    [KEY] Y ref right;
+};
+
+instance of X
+{
+    key = "John Smith";
+};
+
+instance of Y
+{
+    key = "John Jones";
+};
+
+instance of A
+{
+    left = "X.key=\"John Smith\"";
+    right = "Y.key=\"John Jones\"";
+};
+

@@ -1,0 +1,583 @@
+#//%2005////////////////////////////////////////////////////////////////////////
+#//
+#// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+#// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+#// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+#// IBM Corp.; EMC Corporation, The Open Group.
+#// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+#// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+#// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+#// EMC Corporation; VERITAS Software Corporation; The Open Group.
+#//
+#// Permission is hereby granted, free of charge, to any person obtaining a copy
+#// of this software and associated documentation files (the "Software"), to
+#// deal in the Software without restriction, including without limitation the
+#// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+#// sell copies of the Software, and to permit persons to whom the Software is
+#// furnished to do so, subject to the following conditions:
+#// 
+#// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+#// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+#// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+#// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+#// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+#// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+#// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+#// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#//
+#//==============================================================================
+###############################################################################
+##
+## Test Makefile for Pegasus CIMOM
+##
+## Options:
+##      rebuild            - Rebuild
+##      build              - Build
+##      prestarttests      - Execute functional tests
+##      poststarttests     - Execute poststarttests (No security, No SSL)
+##      tests              - Execute prestarttests and poststarttests
+##      standardtests      - Execute poststartests and a series of
+##                           posstarttests using multiple options.
+##
+#####################
+##
+## The following are all standalone tests. That is the can be invoked 
+## without any prerequisite dependencies. They stop and start the server as
+## needed. They clean and rebuild the repository as needed and then run the 
+## poststarttests.
+##
+##	TestXMLRepository  - Executes poststartests on binary repository 
+##				built with cimmofl.
+##
+##	TestXMLRepositoryServer - Executes poststartests on binary repository 
+##				built with cimmof.
+##
+##	TestXMLCmpRepository - Executes poststartests on binary compressed 
+##				repository built with cimmofl.	
+##
+##
+##	TestBinRepository  - Executes poststartests on binary repository 
+##				built with cimmofl.
+##
+##	TestBinRepositoryServer - Executes poststartests on binary repository 
+##				built with cimmof.
+##
+##	TestBinCmpRepository - Executes poststartests on binary compressed 
+##				repository built with cimmofl.	
+##
+##
+###############################################################################
+
+error:
+	@ $(ECHO) "Specify desired makefile option (i.e., build, rebuild)"
+
+include $(PEGASUS_ROOT)/mak/config.mak
+include $(PEGASUS_ROOT)/mak/test.mak
+include $(PEGASUS_ROOT)/mak/commands.mak
+
+system = localhost
+
+TESTS = prestarttests poststarttests
+
+.PHONY: FORCE
+
+FORCE:
+
+rebuild: clean all tests
+
+build: all tests
+
+clean:
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile clean
+
+buildmu:
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/utils/mu -f Makefile
+	$(MKDIRHIER) $(BIN_DIR)
+
+all: buildmu
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile depend
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile all
+
+doc:
+	$(MAKE) --directory=$(PEGASUS_ROOT)/doc/ProviderSpec -f Makefile
+	$(MAKE) --directory=$(PEGASUS_ROOT)/doc/DevManual -f Makefile
+
+repositoryServer:
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
+	$(SLEEP) 5
+	$(RMDIRHIER) $(REPOSITORY_ROOT)
+	$(CIMSERVER_START_SERVICE)
+	$(SLEEP) 5
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repositoryServer
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepositoryServer
+
+prestarttests:
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
+	$(SLEEP) 5
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repository
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepository
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile tests
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Server -f Makefile install_run
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Clients/ssltrustmgr/tests -f Makefile test_setup
+
+poststarttestsclean:
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Pegasus/CQL/tests/Queries -f Makefile clean
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Pegasus/Query/QueryExpression/tests/Queries -f Makefile clean
+	$(MAKE) --directory=$(PEGASUS_ROOT)/test/wetest -f Makefile clean
+
+poststarttests: poststarttestsclean
+	$(CIMSERVER_START_SERVICE)
+	$(SLEEP) 5
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile poststarttests
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile TestBinRepository
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_OOP_TS1
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_IndInit_TS1
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile run_SSL_TS1
+
+tests: $(TESTS)
+ifeq ($(PEGASUS_PLATFORM),WIN32_IX86_MSVC)
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Server -f Makefile uninstall
+endif
+	@ $(ECHO) Finished Tests
+
+###############################################################################
+##  Test Suite Definitions
+###############################################################################
+
+###############################################################################
+##  OOP Test Suite 1: "Out-of-Process"(OOP) Provider Tests 
+##
+##  Configuration Options: forceProviderProcesses=true
+##
+###############################################################################
+OOP_TS1_CONFIG_OPTIONS = forceProviderProcesses=true
+OOP_TS1_TEST_CMDS = \
+        TestClient
+
+run_OOP_TS1:
+	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
+            CIMSERVER_CONFIG_OPTIONS="$(OOP_TS1_CONFIG_OPTIONS)" \
+            TESTSUITE_CMDS="$(OOP_TS1_TEST_CMDS)"
+###############################################################################
+
+###############################################################################
+##  IndInit Test Suite 1: IndicationService Initialization Tests 
+##
+##  Configuration Options: (none)
+##
+###############################################################################
+IndInit_TS1_CONFIG_OPTIONS = 
+IndInit_TS1a_TEST_CMDS = \
+	$(MAKE)@@--directory=$(PEGASUS_ROOT)/src/Pegasus/IndicationService/tests/ProcessIndication@@IndInit_TS1a
+IndInit_TS1b_TEST_CMDS = \
+	$(MAKE)@@--directory=$(PEGASUS_ROOT)/src/Pegasus/IndicationService/tests/ProcessIndication@@IndInit_TS1b
+
+run_IndInit_TS1:
+	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
+            CIMSERVER_CONFIG_OPTIONS="$(IndInit_TS1_CONFIG_OPTIONS)" \
+            TESTSUITE_CMDS="$(IndInit_TS1a_TEST_CMDS)"
+	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
+            CIMSERVER_CONFIG_OPTIONS="$(IndInit_TS1_CONFIG_OPTIONS)" \
+            TESTSUITE_CMDS="$(IndInit_TS1b_TEST_CMDS)"
+
+###############################################################################
+##  SSL Test Suite 1: SSL Tests
+##
+##  Configuration Options: enableAuthentication=true
+##                         enableHttpsConnection=true
+##                         sslClientVerificationMode=optional
+##                         sslTrustStoreUserName=$(CURRENT_USER)
+##
+###############################################################################
+SSL_TS1_CONFIG_OPTIONS = enableHttpsConnection=true enableAuthentication=true \
+       sslClientVerificationMode=optional sslTrustStoreUserName=$(CURRENT_USER)
+SSL_TS1_TEST_CMDS = \
+       $(MAKE)@@--directory=$(PEGASUS_ROOT)/src/Clients/ssltrustmgr/tests@@SSLCertificateTest1
+
+run_SSL_TS1:
+	$(MAKE) -f $(PEGASUS_ROOT)/TestMakefile runTestSuite \
+            CIMSERVER_CONFIG_OPTIONS="$(SSL_TS1_CONFIG_OPTIONS)" \
+            TESTSUITE_CMDS="$(SSL_TS1_TEST_CMDS)"
+###############################################################################
+
+
+
+##############################################################################
+##
+## TestXMLRepository rule is used to run the poststarttests suite on
+## the XML Repository built using cimmofl
+##
+## TestXMLRepositoryServer rule is used to run the poststarttests suite on
+## the XML Repository built using cimmof
+##
+## TestXMLCmpRepository rule is used to run the poststarttest suite on 
+## the XML Compressed Repository built using cimmofl
+##
+
+############################
+##
+## TestXMLRepository
+##
+
+TestXMLRepository: TestXMLClean TestXMLBuildRepo  TestXMLRepo
+	@ $(ECHO) TestXMLRepository +++++ passed all test
+
+############################
+##
+## TestXMLRepositoryServer
+##
+TestXMLRepositoryServer: TestXMLClean  TestXMLBuildRepoServ TestXMLRepo
+	@ $(ECHO) TestXMLRepositoryServer +++++ passed all test
+
+############################
+##
+## TestXMLCmpRepository -  run poststarttest on Compressed BIN Repository
+##
+ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY
+TestXMLCmpRepository: FORCE
+	@ $(ECHO) TestXMLCmpRepository +++++ Repository compressed by default - nothing more to test.
+	@ $(ECHO) TestXMLCmpRepository +++++ passed all test
+else
+
+ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY_TEST
+
+TestXMLCmpRepository: TestXMLClean  TestCmpBuild TestXMLBuildRepo TestXMLRepo TestRegBuild
+	@ $(ECHO) TestXMLCmpRepository +++++ passed all test
+else
+TestXMLCmpRepository: FORCE
+	@ $(ECHO) TestXMLCmpRepository +++++ Not tested 
+	@ $(ECHO) TestXMLCmpRepository +++++ refer to readme.compressed_repository
+	@ $(ECHO) TestXMLCmpRepository +++++ to enable: set PEGASUS_ENABLE_COMPRESSED_REPOSITORY_TEST=true 
+endif
+endif
+
+###########################
+##
+## TestXMLClean
+##
+TestXMLClean: FORCE
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop 
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repositoryclean REPOSITORY_NAME=repository_xml
+
+
+###########################
+##
+## TestXMLStartServer
+##
+TestXMLStartServer: FORCE
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Server -f Makefile install_run
+	- $(MKDIRHIER) $(PEGASUS_HOME)/repository_xml
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstart CIMSERVER_CONFIG_OPTIONS="repositoryDir=$(PEGASUS_HOME)/repository_xml"
+	$(SLEEP) 5
+
+####
+#### The following caused the cimserver to fail on startup
+####
+####	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstart CIMSERVER_CONFIG_OPTIONS="enableBinRepository=false repositoryDir=$(PEGASUS_HOME)/repository_xml"
+
+###########################
+##
+## TestXMLBuildRepo
+##
+TestXMLBuildRepo: FORCE
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repository REPOSITORY_NAME=repository_xml REPOSITORY_MODE=XML
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepository REPOSITORY_NAME=repository_xml REPOSITORY_MODE=XML
+
+
+###########################
+##
+## TestXMLBuildRepoServ
+##
+TestXMLBuildRepoServ: TestXMLStartServer
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repositoryServer REPOSITORY_NAME=repository_xml REPOSITORY_MODE=XML
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepositoryServer REPOSITORY_NAME=repository_xml REPOSITORY_MODE=XML
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop 
+
+
+###########################
+##
+## TestXMLRepo
+##
+TestXMLRepo: poststarttestsclean
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile TestXMLStartServer
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile poststarttests REPOSITORY_NAME=repository_xml REPOSITORY_MODE=XML
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop 
+
+
+
+
+
+
+##############################################################################
+##
+## TestBinRepository rule is used to run the poststarttests suite on
+## the Binary Repository built using cimmofl
+##
+## TestBinRepositoryServer rule is used to run the poststarttests suite on
+## the Binary Repository built using cimmof
+##
+## TestBinCmpRepository rule is used to run the poststarttest suite on 
+## the Binry Compressed Repository built using cimmofl
+##
+
+############################
+##
+## TestBinRepository
+##
+### bug 3011 disabled Binary Repository testing on LINUX_IA64 to allow
+### the nightly tests to run
+
+TestBinRepository: TestBinClean TestBinBuildRepo  TestBinRepo
+	@ $(ECHO) TestBinRepository +++++ passed all test
+
+
+############################
+##
+## TestBinRepositoryServer
+##
+TestBinRepositoryServer: TestBinClean  TestBinBuildRepoServ TestBinRepo
+	@ $(ECHO) TestBinRepositoryServer +++++ passed all test
+
+############################
+##
+## TestBinCmpRepository -  run poststarttest on Compressed BIN Repository
+##
+ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY
+TestBinCmpRepository: FORCE
+	@ $(ECHO) TestBinCmpRepository +++++ Repository compressed by default - nothing more to test.
+	@ $(ECHO) TestBinCmpRepository +++++ passed all test
+else
+
+ifdef PEGASUS_ENABLE_COMPRESSED_REPOSITORY_TEST
+
+TestBinCmpRepository: TestBinClean  TestCmpBuild TestBinBuildRepo TestBinRepo TestRegBuild
+	@ $(ECHO) TestBinCmpRepository +++++ passed all test
+else
+TestBinCmpRepository: FORCE
+	@ $(ECHO) TestBinCmpRepository +++++ Not tested 
+	@ $(ECHO) TestBinCmpRepository +++++ refer to readme.compressed_repository
+	@ $(ECHO) TestBinCmpRepository +++++ to enable: set PEGASUS_ENABLE_COMPRESSED_REPOSITORY_TEST=true 
+endif
+endif
+
+
+###########################
+##
+## TestBinClean
+##
+TestBinClean: FORCE
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop 
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repositoryclean REPOSITORY_NAME=repository_bin
+
+
+###########################
+##
+## TestBinStartServer
+##
+TestBinStartServer: FORCE
+	$(MAKE) --directory=$(PEGASUS_ROOT)/src/Server -f Makefile install_run
+	- $(MKDIRHIER) $(PEGASUS_HOME)/repository_bin
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstart CIMSERVER_CONFIG_OPTIONS="enableBinaryRepository=true repositoryDir=$(PEGASUS_HOME)/repository_bin"
+	$(SLEEP) 5
+
+###########################
+##
+## TestBinBuildRepo
+##
+TestBinBuildRepo: FORCE
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repository REPOSITORY_NAME=repository_bin REPOSITORY_MODE=BIN
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepository REPOSITORY_NAME=repository_bin REPOSITORY_MODE=BIN
+
+
+###########################
+##
+## TestBinBuildRepoServ
+##
+TestBinBuildRepoServ: TestBinStartServer
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repositoryServer REPOSITORY_NAME=repository_bin REPOSITORY_MODE=BIN
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepositoryServer REPOSITORY_NAME=repository_bin REPOSITORY_MODE=BIN
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop 
+
+
+###########################
+##
+## TestBinRepo
+##
+TestBinRepo: poststarttestsclean 
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile TestBinStartServer
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile poststarttests REPOSITORY_NAME=repository_bin REPOSITORY_MODE=BIN
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop 
+
+
+
+
+############################
+##
+## TestCmpBuild - used to compile the repository for compression
+##
+TestCmpBuild: FORCE
+	@ $(MAKE) "-SC" $(ROOT)/src/Pegasus/Repository clean
+	@ $(MAKE) "-SC" $(ROOT)/src/Pegasus/Repository depend PEGASUS_ENABLE_COMPRESSED_REPOSITORY=1
+	@ $(MAKE) "-SC" $(ROOT)/src/Pegasus/Repository PEGASUS_ENABLE_COMPRESSED_REPOSITORY=1
+
+
+############################
+##
+## TestRegBuild - used to compile the repository for no compression
+##
+TestRegBuild: FORCE
+	@ $(MAKE) "-SC" $(ROOT)/src/Pegasus/Repository clean
+	@ $(MAKE) "-SC" $(ROOT)/src/Pegasus/Repository depend 
+	@ $(MAKE) "-SC" $(ROOT)/src/Pegasus/Repository 
+
+
+###############################################################################
+##
+## Trace Configuration
+##
+## Options:
+##      XMLTraceOn: Enables XML request and response tracing.
+##      ProviderLoadTraceOn: Enables Provider load tracing.
+##      XML+ProviderLoadTraceOn: Enables both XML request/response and Provider
+##                                 load tracing.
+##      AllTraceOn: Enables all tracing.
+##      AllTraceOff: Disables all tracing.
+##      list: Lists trace settings.
+##
+###############################################################################
+
+XMLTraceOn:
+	cimconfig -s traceComponents=XmlIO -c
+	cimconfig -s traceLevel=3 -c
+	cimconfig -g traceComponents
+	cimconfig -g traceLevel
+
+ProviderLoadTraceOn:
+	cimconfig -s traceComponents=ProvManager,OsAbstraction
+	cimconfig -s traceLevel=3 -c
+	cimconfig -g traceComponents
+	cimconfig -g traceLevel
+
+XML+ProviderLoadTraceOn:
+	cimconfig -s traceComponents=XmlIO,ProvManager,OsAbstraction
+	cimconfig -s traceLevel=3 -c
+	cimconfig -g traceComponents
+	cimconfig -g traceLevel
+
+AllTraceOn:
+	cimconfig -s traceComponents=ALL
+	cimconfig -s traceLevel=3 -c
+	cimconfig -g traceComponents
+	cimconfig -g traceLevel
+
+AllTraceOff:
+	cimconfig -s traceComponents=
+	cimconfig -g traceComponents
+	cimconfig -g traceLevel
+
+list:
+	cimconfig -g traceComponents
+	cimconfig -g traceLevel
+	cimconfig -g traceFilePath
+
+# More options...
+
+standardtests:
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i DisableSecurity
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile TestCimmof
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile TestNoSecurity
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile EnableAuthentication
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile TestLocalSecurity
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile TestRemoteSecurity
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile EnableAuthorization
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile TestAuthorization
+
+TestNoSecurity:
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile tests
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile startcimWithoutSSL
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile RunTestClientLocal
+
+TestLocalSecurity:
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile RunTestClientLocal
+	$(MAKE) --directory=$(PEGASUS_ROOT)/test/wetest -f Makefile poststarttests HOSTNAME= PORT= USER= PASSWORD= SECURITY_ENABLED=true
+
+TestRemoteSecurity:
+	TestClient -user guest -password guest $(system):5988
+	$(MAKE) --directory=$(PEGASUS_ROOT)/test/wetest/static -f Makefile poststarttests HOSTNAME=-h$(system) USER=-uguest PASSWORD=-wguest SECURITY_ENABLED=true
+
+TestAuthorization:
+	DeleteNamespace -a -user guest -password guest
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile RunTestClientLocal
+	TestClient -user guest -password guest $(system):5988
+	$(MAKE) --directory=$(PEGASUS_ROOT)/test/wetest/static -f Makefile poststarttests HOSTNAME=-h$(system) USER=-uguest PASSWORD=-wguest SECURITY_ENABLED=true
+
+TestSubscriptions:
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile DisableSecurity
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile repository
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Makefile testrepository
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile startcimWithoutSSL
+	$(MAKE) --directory=$(PEGASUS_ROOT)/test/wetest/cimv2/Subscription -f Makefile poststarttests
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile cimstop
+
+TestCimmof:
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f Testcimmof poststarttests
+
+RunTestClientLocal:
+	TestClient -local
+
+DisableSecurity:
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
+	cimconfig -s enableAuthentication=false -p
+	cimconfig -s enableNamespaceAuthorization=false -p
+
+EnableAuthentication:
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
+	cimconfig -s enableAuthentication=true -p
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile startcimWithoutSSL
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile ConfigureUsers
+
+EnableAuthorization:
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
+	cimconfig -s enableNamespaceAuthorization=true -p
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile startcimWithoutSSL
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i ConfigureAuthorizations
+
+EnableSSL:
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile -i cimstop
+	$(MAKE) --directory=$(PEGASUS_ROOT) -f TestMakefile startcimWithSSL
+
+ConfigureUsers:
+ifndef PEGASUS_PAM_AUTHENTICATION
+	cimuser -a -u guest -w guest
+endif
+
+ConfigureAuthorizations:
+	cimauth -a -u guest -n test/cimv2 -R -W
+	cimauth -a -u guest -n root/cimv2 -R -W
+	cimauth -a -u guest -n root/PG_Internal -R -W
+	cimauth -a -u guest -n root/PG_InterOp -R -W
+	cimauth -a -u guest -n root/benchmark -R -W
+	cimauth -a -u guest -n root/sampleprovider -R -W
+	cimauth -a -u guest -n test/static -R -W
+	cimauth -a -u guest -n root/SampleProvider -R -W
+	cimauth -a -u guest -n root -R -W
+	cimauth -a -u guest -n test1 -R -W
+	cimauth -a -u guest -n test2 -R -W
+	cimauth -a -u guest -n test3 -R -W
+	cimauth -a -u guest -n test4 -R -W
+	cimauth -a -u guest -n test5 -R -W
+	cimauth -a -u guest -n test6 -R -W
+	cimauth -a -u guest -n test1/test2 -R -W
+	cimauth -a -u guest -n test1/test2/test3 -R -W
+	cimauth -a -u guest -n test1/test2/test3/test4 -R -W
+	cimauth -a -u guest -n test1/test2/test3/test4/test5 -R -W
+	cimauth -a -u guest -n test1/test2/test3/test4/test5/test6 -R -W
+
+startcimWithoutSSL:
+	$(CIMSERVER_START_SERVICE)
+	$(SLEEP) 5
+
+startcimWithSSL:
+	$(CIMSERVER_START_SERVICE) enableHttpConnection=false enableHttpsConnection=true
+	$(SLEEP) 5

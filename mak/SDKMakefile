@@ -1,0 +1,404 @@
+#//%2005////////////////////////////////////////////////////////////////////////
+#//
+#// Copyright (c) 2000, 2001, 2002 BMC Software; Hewlett-Packard Development
+#// Company, L.P.; IBM Corp.; The Open Group; Tivoli Systems.
+#// Copyright (c) 2003 BMC Software; Hewlett-Packard Development Company, L.P.;
+#// IBM Corp.; EMC Corporation, The Open Group.
+#// Copyright (c) 2004 BMC Software; Hewlett-Packard Development Company, L.P.;
+#// IBM Corp.; EMC Corporation; VERITAS Software Corporation; The Open Group.
+#// Copyright (c) 2005 Hewlett-Packard Development Company, L.P.; IBM Corp.;
+#// EMC Corporation; VERITAS Software Corporation; The Open Group.
+#//
+#// Permission is hereby granted, free of charge, to any person obtaining a copy
+#// of this software and associated documentation files (the "Software"), to
+#// deal in the Software without restriction, including without limitation the
+#// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+#// sell copies of the Software, and to permit persons to whom the Software is
+#// furnished to do so, subject to the following conditions:
+#// 
+#// THE ABOVE COPYRIGHT NOTICE AND THIS PERMISSION NOTICE SHALL BE INCLUDED IN
+#// ALL COPIES OR SUBSTANTIAL PORTIONS OF THE SOFTWARE. THE SOFTWARE IS PROVIDED
+#// "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+#// LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+#// PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+#// HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+#// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+#// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#//
+#//==============================================================================
+include $(PEGASUS_ROOT)/mak/config.mak
+include $(PEGASUS_ROOT)/mak/commands.mak
+
+ifndef PEGASUS_STAGING_DIR
+   PEGASUS_STAGING_DIR = $(PEGASUS_HOME)/stageSDK/
+endif
+
+ifndef PEGASUS_SAMPLES_DIR
+   PEGASUS_SAMPLES_DIR = samples
+endif
+
+ifndef PEGASUS_INCLUDE_DIR
+   PEGASUS_INCLUDE_DIR = include
+endif
+
+ifndef PEGASUS_HTML_DIR
+   PEGASUS_HTML_DIR = html
+endif
+   
+
+INCLUDE_SRCPATH = $(PEGASUS_ROOT)/src
+
+HTML_SRCPATH = $(PEGASUS_HOME)/html
+
+DOC_SRCPATH1 = $(PEGASUS_ROOT)/doc
+
+CLIENT_SRCPATH1 = $(PEGASUS_ROOT)/src/SDK/samples
+CLIENT_SRCPATH2 = $(PEGASUS_ROOT)/InterfaceArchive/v002001/tests/Clients
+CLIENT_SRCPATH3 = $(PEGASUS_ROOT)/src/Clients
+CLIENT_SRCPATH4 = $(PEGASUS_ROOT)/src/Providers/sample/AssociationProvider/testclient/
+
+PROVIDER_SRCPATH1 = $(PEGASUS_ROOT)/src/SDK/samples/Providers
+PROVIDER_SRCPATH2 = $(PEGASUS_ROOT)/src/Providers/sample
+PROVIDER_SRCPATH3 = $(PEGASUS_ROOT)/InterfaceArchive/v002001/tests/Providers
+PROVIDER_SRCPATH4 = $(PEGASUS_ROOT)/src/Providers/IndicationConsumer
+PROVIDER_SRCPATH5 = $(PEGASUS_ROOT)/src/Providers/sample
+
+INCLUDE_DIRS = \
+  Pegasus \
+  Pegasus/Client \
+  Pegasus/Common \
+  Pegasus/Consumer \
+  Pegasus/Provider \
+  Pegasus/Provider/CMPI 
+
+INCLUDE_FILES = \
+   Pegasus/Client/CIMClientException.h \
+   Pegasus/Client/CIMClient.h \
+   Pegasus/Client/Linkage.h \
+   Pegasus/Common/Array.h \
+   Pegasus/Common/ArrayInter.h \
+   Pegasus/Common/Char16.h \
+   Pegasus/Common/CIMClass.h \
+   Pegasus/Common/CIMDateTime.h \
+   Pegasus/Common/CIMFlavor.h \
+   Pegasus/Common/CIMIndication.h \
+   Pegasus/Common/CIMInstance.h \
+   Pegasus/Common/CIMMethod.h \
+   Pegasus/Common/CIMName.h \
+   Pegasus/Common/CIMObject.h \
+   Pegasus/Common/CIMObjectPath.h \
+   Pegasus/Common/CIMParameter.h \
+   Pegasus/Common/CIMParamValue.h \
+   Pegasus/Common/CIMProperty.h \
+   Pegasus/Common/CIMPropertyList.h \
+   Pegasus/Common/CIMQualifierDecl.h \
+   Pegasus/Common/CIMQualifier.h \
+   Pegasus/Common/CIMScope.h \
+   Pegasus/Common/CIMStatusCode.h \
+   Pegasus/Common/CIMType.h \
+   Pegasus/Common/CIMValue.h \
+   Pegasus/Common/Config.h \
+   Pegasus/Common/Exception.h \
+   Pegasus/Common/Linkage.h \
+   Pegasus/Common/OperationContext.h \
+   Pegasus/Common/ResponseHandler.h \
+   Pegasus/Common/SSLContext.h \
+   Pegasus/Common/String.h \
+   Pegasus/Consumer/CIMIndicationConsumer.h \
+   Pegasus/Consumer/Linkage.h \
+   Pegasus/Provider/CIMAssociationProvider.h \
+   Pegasus/Provider/CIMIndicationConsumerProvider.h \
+   Pegasus/Provider/CIMIndicationProvider.h \
+   Pegasus/Provider/CIMInstanceProvider.h \
+   Pegasus/Provider/CIMMethodProvider.h \
+   Pegasus/Provider/CIMOMHandle.h \
+   Pegasus/Provider/CIMProvider.h \
+   Pegasus/Provider/Linkage.h \
+   Pegasus/Provider/ProviderException.h \
+   Pegasus/Common/AcceptLanguages.h \
+   Pegasus/Common/MessageLoader.h \
+   Pegasus/Common/ContentLanguages.h \
+   Pegasus/Common/LanguageElementContainer.h \
+   Pegasus/Common/AcceptLanguageElement.h \
+   Pegasus/Common/Formatter.h \
+   Pegasus/Common/ContentLanguageElement.h \
+   Pegasus/Common/LanguageElement.h  
+
+INCLUDE_FILES += \
+   Pegasus/Client/ClientOpPerformanceDataHandler.h \
+   Pegasus/Common/CIMOperationType.h
+
+# CMPI header files
+INCLUDE_FILES += \
+   Pegasus/Provider/CMPI/cmpift.h \
+   Pegasus/Provider/CMPI/cmpidt.h \
+   Pegasus/Provider/CMPI/cmpimacs.h \
+   Pegasus/Provider/CMPI/cmpios.h \
+   Pegasus/Provider/CMPI/cmpipl.h \
+   Pegasus/Provider/CMPI/cmpi_cql.h 
+
+SAMPLES_DIRS = \
+   Clients \
+   Clients/DefaultC++ \
+   Clients/DefaultC++/EnumInstances \
+   Clients/DefaultC++/InvokeMethod \
+   Clients/DefaultC++/SendTestIndications \
+   Clients/DefaultC++/Associations \
+   Providers \
+   Providers/DefaultC++ \
+   Providers/DefaultC++/IndicationProvider \
+   Providers/DefaultC++/InstanceProvider \
+   Providers/DefaultC++/MethodProvider \
+   Providers/DefaultC++/SimpleDisplayConsumer \
+   Providers/DefaultC++/AssociationProvider \
+   Providers/CMPI \
+   Providers/CMPI/FilesAndDirectories \
+   Providers/Load \
+   mak
+
+DOCSRCPATH1FILES = \
+   SecurityGuidelinesForDevelopers.html
+
+CLIENTSRCPATH1FILES = \
+   Makefile \
+   mak/config.mak \
+   mak/program.mak \
+   mak/recurse.mak \
+   mak/library.mak \
+   mak/common.mak \
+   Clients/Makefile \
+   Clients/DefaultC++/Makefile \
+   Clients/DefaultC++/EnumInstances/Makefile \
+   Clients/DefaultC++/InvokeMethod/Makefile \
+   Clients/DefaultC++/SendTestIndications/Makefile  \
+   Clients/DefaultC++/Associations/Makefile
+
+CLIENTSRCPATH2FILES = \
+   EnumInstances/EnumInstances.cpp \
+   InvokeMethod/InvokeMethod.cpp 
+
+CLIENTSRCPATH3FILES = \
+   SendTestIndications/SendTestIndications.cpp
+
+CLIENTSRCPATH4FILES = \
+   AssociationTestClient.cpp
+
+PROVIDERSRCPATH1FILES = \
+   Makefile \
+   Load/Makefile \
+   Load/SampleProviderSchema.mof \
+   Load/IndicationProviderR.mof \
+   DefaultC++/Makefile \
+   DefaultC++/InstanceProvider/Makefile \
+   DefaultC++/MethodProvider/Makefile \
+   DefaultC++/IndicationProvider/Makefile \
+   DefaultC++/IndicationProvider/IndicationProvider.cpp \
+   DefaultC++/IndicationProvider/IndicationProvider.h \
+   DefaultC++/IndicationProvider/IndicationProviderMain.cpp \
+   DefaultC++/SimpleDisplayConsumer/Makefile \
+   CMPI/Makefile \
+   CMPI/FilesAndDirectories/Makefile \
+   DefaultC++/AssociationProvider/Makefile
+
+PROVIDERSRCPATH2FILES = \
+   Load/InstanceProviderR.mof \
+   Load/MethodProviderR.mof \
+   Load/SimpleDisplayConsumerR.mof \
+   Load/CWS_FilesAndDir.mof \
+   Load/CWS_FilesAndDirR.mof \
+   Load/AssociationProvider.mof \
+   Load/AssociationProviderR.mof
+
+#CMPI provider.
+PROVIDERSRCPATH2FILES += \
+     CMPI/FilesAndDirectories/cwssimdata.c \
+     CMPI/FilesAndDirectories/cwsutil.h \
+     CMPI/FilesAndDirectories/CWS_Directory.c \
+     CMPI/FilesAndDirectories/CWS_DirectoryContainsFile.c \
+     CMPI/FilesAndDirectories/cwsutil.c \
+     CMPI/FilesAndDirectories/CWS_FileUtils.c \
+     CMPI/FilesAndDirectories/CWS_PlainFile.c \
+     CMPI/FilesAndDirectories/CWS_FileUtils.h 
+
+PROVIDERSRCPATH3FILES = \
+   InstanceProvider/InstanceProvider.cpp \
+   InstanceProvider/InstanceProviderMain.cpp \
+   InstanceProvider/InstanceProvider.h \
+   InstanceProvider/EnumerateInstancesrspgood.xml \
+   InstanceProvider/EnumerateInstances.xml \
+   MethodProvider/MethodProvider.cpp \
+   MethodProvider/MethodProviderMain.cpp \
+   MethodProvider/MethodProvider.h \
+   MethodProvider/InvokeMethod.xml \
+   MethodProvider/InvokeMethodrspgood.xml
+
+PROVIDERSRCPATH4FILES = \
+   SimpleDisplayConsumer/SimpleDisplayConsumerMain.cpp \
+   SimpleDisplayConsumer/SimpleDisplayConsumer.cpp \
+   SimpleDisplayConsumer/SimpleDisplayConsumer.h
+
+PROVIDERSRCPATH5FILES = \
+   AssociationProvider/AssociationProvider.cpp \
+   AssociationProvider/AssociationProvider.h \
+   AssociationProvider/AssociationProviderMain.cpp
+
+
+error:
+	@echo "Please specify an action"
+
+stageSDK:
+	@$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f SDKMakefile stageINCLUDE
+	@$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f SDKMakefile stageHTML
+	@$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f SDKMakefile stageSAMPLES
+	@$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f SDKMakefile stageDOCS
+
+stageINCLUDE:
+	@$(RMDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_INCLUDE_DIR)
+	@$(foreach i, $(INCLUDE_DIRS), $(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_INCLUDE_DIR)/$(i);)
+	@$(foreach i, $(INCLUDE_FILES), $(COPY) $(INCLUDE_SRCPATH)/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_INCLUDE_DIR)/$(i);)
+	@$(COPY) $(INCLUDE_SRCPATH)/Pegasus/Common/Platform_$(PEGASUS_PLATFORM).h \
+                 $(PEGASUS_STAGING_DIR)$(PEGASUS_INCLUDE_DIR)/Pegasus/Common/Platform_$(PEGASUS_PLATFORM).h
+
+createPlatformFile:
+	@$(ECHO) "ifndef PEGASUS_PROVIDER_LIB_DIR" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/$(PEGASUS_PLATFORM).mak
+	@$(ECHO) "   PEGASUS_PROVIDER_LIB_DIR = $(PEGASUS_PROVIDER_LIB_DIR)" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/$(PEGASUS_PLATFORM).mak
+	@$(ECHO) "endif" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/$(PEGASUS_PLATFORM).mak
+	@$(ECHO) "ifndef PEGASUS_DEST_LIB_DIR" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/$(PEGASUS_PLATFORM).mak
+	@$(ECHO) "   PEGASUS_DEST_LIB_DIR = $(PEGASUS_DEST_LIB_DIR)" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/$(PEGASUS_PLATFORM).mak
+	@$(ECHO) "endif" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/$(PEGASUS_PLATFORM).mak
+	@$(ECHO) "ifndef PEGASUS_INCLUDE_DIR" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/$(PEGASUS_PLATFORM).mak
+	@$(ECHO) "   PEGASUS_INCLUDE_DIR = $(PEGASUS_INCLUDE_DIR)" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/$(PEGASUS_PLATFORM).mak
+	@$(ECHO) "endif" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/$(PEGASUS_PLATFORM).mak
+	@$(ECHO) "ifndef PEGASUS_MOF_DIR" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/$(PEGASUS_PLATFORM).mak
+	@$(ECHO) "   PEGASUS_MOF_DIR = $(PEGASUS_MOF_DIR)" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/$(PEGASUS_PLATFORM).mak
+	@$(ECHO) "endif" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/$(PEGASUS_PLATFORM).mak
+	@$(ECHO) "ifndef PEGASUS_SAMPLES_DIR" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/$(PEGASUS_PLATFORM).mak
+	@$(ECHO) "   PEGASUS_SAMPLES_DIR = $(PEGASUS_SAMPLES_DIR)" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/$(PEGASUS_PLATFORM).mak
+	@$(ECHO) "endif" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/$(PEGASUS_PLATFORM).mak
+	@$(ECHO) "ifndef PEGASUS_BIN_DIR" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/$(PEGASUS_PLATFORM).mak
+	@$(ECHO) "   PEGASUS_BIN_DIR = $(PEGASUS_BIN_DIR)" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/$(PEGASUS_PLATFORM).mak
+	@$(ECHO) "endif" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/$(PEGASUS_PLATFORM).mak
+	@$(ECHO) "" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/$(PEGASUS_PLATFORM).mak
+	@$(ECHO) "ifndef PEGASUS_INDICATION_CONSUMER_LOG_DIR" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO) "   PEGASUS_INDICATION_CONSUMER_LOG_DIR = $(PEGASUS_SAMPLES_DIR)/Providers/DefaultC++/SimpleDisplayConsumer" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO) "endif" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO) "" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(CAT) $(CLIENT_SRCPATH1)/mak/$(PEGASUS_PLATFORM).mak  >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/$(PEGASUS_PLATFORM).mak
+
+createConfigFile:
+	@$(ECHO) "ifndef PEGASUS_PLATFORM" > $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO) "   PEGASUS_PLATFORM = $(PEGASUS_PLATFORM)" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO) "endif" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO) "" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO) "PEGASUS_CIM_SCHEMA = $(PEGASUS_CIM_SCHEMA)" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO) "CIM_SCHEMA_VER = $(CIM_SCHEMA_VER)" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(ECHO) "" >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+	@$(CAT)  $(PEGASUS_ROOT)/src/SDK/samples/mak/config.mak >> $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/mak/config.mak
+
+stageDOCS:
+	@$(foreach i, $(DOCSRCPATH1FILES), $(COPY) $(DOC_SRCPATH1)/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_DOC_DIR)/$(i);)
+
+stageSAMPLES:
+	@$(RMDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)
+	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)
+	@$(foreach i, $(SAMPLES_DIRS), $(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/$(i);)
+	@$(foreach i, $(CLIENTSRCPATH1FILES), $(COPY) $(CLIENT_SRCPATH1)/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/$(i);)
+	@$(foreach i, $(CLIENTSRCPATH2FILES), $(COPY) $(CLIENT_SRCPATH2)/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Clients/DefaultC++/$(i);)
+	@$(foreach i, $(CLIENTSRCPATH3FILES), $(COPY) $(CLIENT_SRCPATH3)/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Clients/DefaultC++/$(i);)
+	@$(foreach i, $(CLIENTSRCPATH4FILES), $(COPY) $(CLIENT_SRCPATH4)/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Clients/DefaultC++/Associations/$(i);)
+	@$(foreach i, $(PROVIDERSRCPATH1FILES), $(COPY) $(PROVIDER_SRCPATH1)/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Providers/$(i);)
+	@$(foreach i, $(PROVIDERSRCPATH2FILES), $(COPY) $(PROVIDER_SRCPATH2)/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Providers/$(i);)
+	@$(foreach i, $(PROVIDERSRCPATH3FILES), $(COPY) $(PROVIDER_SRCPATH3)/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Providers/DefaultC++/$(i);)
+	@$(foreach i, $(PROVIDERSRCPATH4FILES), $(COPY) $(PROVIDER_SRCPATH4)/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Providers/DefaultC++/$(i);)
+	@$(foreach i, $(PROVIDERSRCPATH5FILES), $(COPY) $(PROVIDER_SRCPATH5)/$(i) $(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Providers/DefaultC++/$(i);)
+	@$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f SDKMakefile createConfigFile
+	@$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f SDKMakefile createPlatformFile
+
+stageHTML:
+	@$(RMDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_HTML_DIR)
+	@$(MKDIRHIER) $(PEGASUS_STAGING_DIR)$(PEGASUS_HTML_DIR)
+	@$(MAKE) --directory=$(PEGASUS_ROOT)/doc/SDK -f Makefile PEGASUS_HTML_DIR=$(PEGASUS_STAGING_DIR)$(PEGASUS_HTML_DIR) buildDoc_ContinueOnError
+
+_append_preunSectionToSpecFile:
+	@$(ECHO-E) "%preun sdk" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "make --directory $(PEGASUS_SAMPLES_DIR) -s clean"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+
+_append_filesSectionToSpecFile:
+	@$(ECHO-E) "%files sdk"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "# SDK Include Files"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "#"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%dir %attr($(Pr_xr_xr_x),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_INCLUDE_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(foreach i, $(INCLUDE_DIRS), $(ECHO-E) \
+              "%dir %attr($(Pr_xr_xr_x),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_INCLUDE_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+	@$(foreach i, $(INCLUDE_FILES), $(ECHO-E) \
+              "%attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_INCLUDE_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+	@$(ECHO-E) "%attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_INCLUDE_DIR)/Pegasus/Common/Platform_%PEGASUS_HARDWARE_PLATFORM.h"  \
+                       >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "# SDK Sample Files"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "#"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "%dir %attr($(Prwxrwxrwx),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_SAMPLES_DIR)" >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(foreach i, $(SAMPLES_DIRS), $(ECHO-E) \
+              "%dir %attr($(Prwxrwxrwx),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_SAMPLES_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+	@$(foreach i, $(CLIENTSRCPATH1FILES), $(ECHO-E) \
+              "%attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_SAMPLES_DIR)/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+	@$(ECHO-E) "%attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_SAMPLES_DIR)/mak/%PEGASUS_HARDWARE_PLATFORM.mak"  \
+                        >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(foreach i, $(CLIENTSRCPATH2FILES), $(ECHO-E) \
+              "%attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_SAMPLES_DIR)/Clients/DefaultC++/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+	@$(foreach i, $(CLIENTSRCPATH3FILES), $(ECHO-E) \
+              "%attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_SAMPLES_DIR)/Clients/DefaultC++/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+	@$(foreach i, $(CLIENTSRCPATH4FILES), $(ECHO-E) \
+              "%attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_SAMPLES_DIR)/Clients/DefaultC++/Associations/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+	@$(foreach i, $(PROVIDERSRCPATH1FILES), $(ECHO-E) \
+              "%attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_SAMPLES_DIR)/Providers/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+	@$(foreach i, $(PROVIDERSRCPATH2FILES), $(ECHO-E) \
+              "%attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_SAMPLES_DIR)/Providers/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+	@$(foreach i, $(PROVIDERSRCPATH3FILES), $(ECHO-E) \
+              "%attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_SAMPLES_DIR)/Providers/DefaultC++/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+	@$(foreach i, $(PROVIDERSRCPATH4FILES), $(ECHO-E) \
+              "%attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_SAMPLES_DIR)/Providers/DefaultC++/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+	@$(foreach i, $(PROVIDERSRCPATH5FILES), $(ECHO-E) \
+              "%attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_SAMPLES_DIR)/Providers/DefaultC++/$(i)" >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "# SDK Documentation"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) "#"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(foreach i, $(DOCSRCPATH1FILES), \
+              $(ECHO-E) "%doc %attr($(Pr__r__r__),$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_DOC_DIR)/$(i)" \
+                         >> $(PEGASUS_RPM_SPEC_FILE_PATH);)
+	@$(ECHO-E) "%attr(-,$(INSTALL_USR),$(INSTALL_GRP)) $(PEGASUS_HTML_DIR)"  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+	@$(ECHO-E) ""  >> $(PEGASUS_RPM_SPEC_FILE_PATH)
+
+removeSampleProviderNamespace:
+	@$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f SDKMakefile -i cimstop
+	@$(ECHO) +++++ Removing existing repository named root#SampleProvider 
+	@$(RMREPOSITORY) $(REPOSITORY_ROOT)/root\#SampleProvider
+	@$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f SDKMakefile cimstart
+
+buildSDK:
+	@$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f SDKMakefile -i removeSampleProviderNamespace
+	@$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f SDKMakefile -i deregisterproviders
+	@$(MAKE) --directory=$(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR) -f Makefile clean \
+             PEGASUS_SAMPLES_DIR=$(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR) \
+             PEGASUS_PROVIDER_LIB_DIR=$(PEGASUS_HOME)/lib
+	@$(MAKE) --directory=$(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR) -f Makefile all \
+             PEGASUS_PROVIDER_LIB_DIR=$(PEGASUS_HOME)/lib PEGASUS_INCLUDE_DIR=$(PEGASUS_STAGING_DIR)$(PEGASUS_INCLUDE_DIR) \
+             PEGASUS_DEST_LIB_DIR=$(PEGASUS_HOME)/lib PEGASUS_SAMPLES_DIR=$(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR) \
+             PEGASUS_INDICATION_CONSUMER_LOG_DIR=$(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Providers/DefaultC++/SimpleDisplayConsumer
+	@$(MAKE) --directory=$(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Providers/Load -f Makefile createrepository \
+             PEGASUS_MOF_DIR=$(PEGASUS_ROOT)/Schemas PEGASUS_BIN_DIR=$(PEGASUS_HOME)bin
+	@$(MAKE) --directory=$(PEGASUS_ROOT)/mak -f SDKMakefile -i registerproviders PEGASUS_BIN_DIR=$(PEGASUS_HOME)/bin
+
+deregisterproviders:
+	@$(MAKE) --directory=$(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Providers/Load -f Makefile deregisterproviders \
+             PEGASUS_BIN_DIR=$(PEGASUS_HOME)/bin
+
+registerproviders:
+	@$(MAKE) --directory=$(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)/Providers/Load -f Makefile registerproviders \
+             PEGASUS_BIN_DIR=$(PEGASUS_HOME)/bin
+
+testSDK:
+	@$(MAKE) --directory=$(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR) -f Makefile  tests \
+             PEGASUS_SAMPLES_DIR=$(PEGASUS_STAGING_DIR)$(PEGASUS_SAMPLES_DIR)

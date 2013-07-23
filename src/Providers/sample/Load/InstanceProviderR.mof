@@ -1,0 +1,31 @@
+#pragma locale ("en_US")
+
+instance of PG_ProviderModule
+{
+    Description = "The Sample Pegasus Instance Provider Module that implements Sample_InstanceProviderClass";
+    Caption = "Sample Pegasus Instance Provider Module";
+    Name = "SampleInstanceProviderModule";
+    Vendor = "Pegasus";
+    Version = "2.0.0";
+    InterfaceType = "C++Default";
+    InterfaceVersion = "2.1.0";
+    Location = "SampleInstanceProvider";
+};
+
+instance of PG_Provider
+{
+    ProviderModuleName = "SampleInstanceProviderModule";
+    Name = "SampleInstanceProvider";
+};
+
+instance of PG_ProviderCapabilities
+{
+    ProviderModuleName = "SampleInstanceProviderModule";
+    ProviderName = "SampleInstanceProvider";
+    CapabilityID = "SampleInstanceProvider";
+    ClassName = "Sample_InstanceProviderClass";
+    Namespaces = { "root/SampleProvider" };
+    ProviderType = { 2 };
+    SupportedProperties = NULL;
+    SupportedMethods = NULL;
+};

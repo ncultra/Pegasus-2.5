@@ -1,0 +1,71 @@
+[Indication]
+class TestCMPI_Indication 
+{
+	string PropertyA;
+    string PropertyB;
+
+	string s; 
+    uint64 n;
+    real64 f;
+    datetime d;
+
+
+};
+
+class TestCMPI_Parent
+{
+};
+
+class TestCMPI_Instance : TestCMPI_Parent
+{
+	[key]
+	string ElementName;
+
+	string s; 
+    uint64 n64;
+    uint32 n32;
+	uint16 n16;
+    real64 f;
+    datetime d;
+
+
+};
+
+class TestCMPI_Method : TestCMPI_Parent
+{
+
+	uint32 TestCMPIBroker (
+	 [IN, Description (
+		"The requested are to test different CMPI data structure operations."),
+		ValueMap { "1", "2", "3", "4", "5", "6"},
+		Values {"CDGetType", "CDToString", "CDIsOfType", "CMGetMessage",  "CMLogMessage","CDTraceMessage"}]
+			uint32 Operation,
+	  [OUT, Description (
+		" The result of what the operation carried out.")]
+			string Result);
+
+	String returnString();
+	Uint32 returnUint32();
+	[EmbeddedObject]
+    string returnInstance();
+	datetime returnDateTime();
+};
+
+class TestCMPI_Fail_1: TestCMPI_Parent
+{
+};
+
+class TestCMPI_Fail_2: TestCMPI_Parent
+{
+};
+class TestCMPI_Fail_3: TestCMPI_Parent
+{
+};
+
+class TestCMPI_Fail_4: TestCMPI_Parent
+{
+};
+
+class TestCMPI_Thread: TestCMPI_Parent
+{
+};
